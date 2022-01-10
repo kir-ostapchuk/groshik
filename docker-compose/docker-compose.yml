@@ -1,0 +1,39 @@
+version: '3'
+services:
+
+  db:
+    image: library/mongo:latest
+    container_name: db
+    ports:
+      - 27017:27017
+    restart: always
+    environment:
+      MONGODB_DATABASE: ${MONGODB_DATABASE}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+
+  groshik:
+    build: ../
+    container_name: groshik
+    restart: on-failure
+    ports:
+      - 8180:8080
+    environment:
+      - SPRING_DATA_MONGODB_URI=${SPRING_DATA_MONGODB_URI}
+
+  vault:
+    image: library/vault:latest
+    ports:
+      - 8200:8200
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=myroot
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+
+  keycloak:
+    image: jboss/keycloak:latest
+    restart: always
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+    ports:
+      - "8000:8000"
